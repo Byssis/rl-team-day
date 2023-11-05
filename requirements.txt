@@ -1,0 +1,8 @@
+gymnasium
+numpy
+keras
+matplotlib
+tensorflow
+gymnasium[classic_control]
+gymnasium[box2d]
+tensorflow-metal
