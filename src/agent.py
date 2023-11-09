@@ -40,7 +40,7 @@ class DQNAgent:
     # Should match the model complexity of the problem
     # TODO: Implement the model
     model = Sequential([
-      Dense(1, input_dim=self.state_size, activation='relu', kernel_initializer='he_uniform'), # Input layer
+      Dense(16, input_dim=self.state_size, activation='relu', kernel_initializer='he_uniform'), # Input layer
       Dense(self.action_size, activation='linear', kernel_initializer='he_uniform') # Output layer
     ])
     model.compile(loss='mse', optimizer=Adam(learning_rate=self.learning_rate))
@@ -58,6 +58,7 @@ class DQNAgent:
 
   def get_action(self, state):
     # TODO: Implement the exploration policy
+    state = np.reshape(state, [1, self.state_size])
     return np.argmax(self.policy.predict(state, verbose=0))
   
   def get_acction_test(self, state):
