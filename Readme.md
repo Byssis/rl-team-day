@@ -2,7 +2,9 @@
 
 ## Links
 CartPole-V1: https://gymnasium.farama.org/environments/classic_control/cart_pole/
+
 LunarLander-V2: https://gymnasium.farama.org/environments/box2d/lunar_lander/
+
 Keras: https://keras.io/api/
 
 ## Setup
