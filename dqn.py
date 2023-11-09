@@ -43,13 +43,11 @@ def train(args):
     if done:
       done = False
       state, _ = env.reset()
-      # state = np.reshape(state, (1, state_size))
       test_states[i] = state
     else:
       action = random.randrange(action_size)
       next_state, reward, terminated, truncated, info = env.step(action)
       done = terminated or truncated
-      # next_state = np.reshape(next_state, (1, state_size))
       test_states[i] = state
       state = next_state
 
@@ -61,7 +59,8 @@ def train(args):
     done = False
     score = 0
     state, _ = env.reset() 
-    #Compute Q values for plotting
+
+    # for test
     tmp = agent.policy.predict(test_states, verbose=0)
     max_q[e][:] = np.max(tmp, axis=1)
     max_q_mean[e] = np.mean(max_q[e][:])
@@ -86,16 +85,16 @@ def train(args):
       print(f"Saving model to {file_name}")
       agent.save_model(file_name)
 
-    #Plot the play time for every episode
     scores.append(score)
     episodes.append(e)
     mean = np.mean(scores[-min(30, len(scores)):])
     means.append(mean)
     print(f"episode: {e}  score: {score}  memory length: {len(agent.memory)} mean: {mean} q_mean: {max_q_mean[e]}, epsilon: {agent.epsilon}")
+    # Plot the play time for every episode
     # plot_scores(scores, means, max_q_mean[:e + 1])
     # stop training
     if args.goal and  mean >= args.goal:
-      print("solved after", e-100, "episodes")
+      print("solved after", e, "episodes")
       break
       
 
@@ -179,14 +178,14 @@ if __name__ == "__main__":
   parser.add_argument('--load_model', default=None, type=str, help='load the saved model from a specified file')
   parser.add_argument('--save_every', default=50, type=int, help='save the model every specified episodes')
   parser.add_argument('--save_dir', default="results", type=str, help='directory to save the results')
-  parser.add_argument('--episodes', default=10000, type=int, help='number of episodes to run')
-  parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
-  parser.add_argument('--epsilon', default=0.02, type=float, help='initial epsilon value for epsilon-greedy exploration')
+  parser.add_argument('--episodes', default=10, type=int, help='number of episodes to run')
+  parser.add_argument('--gamma', default=0.5, type=float, help='discount factor')
+  parser.add_argument('--epsilon', default=0.5, type=float, help='epsilon value for epsilon-greedy exploration')
   parser.add_argument('--batch_size', default=32, type=int, help='batch size for experience replay')
   parser.add_argument('--train_start', default=1000, type=int, help='start training after specified number of episodes')
-  parser.add_argument('--memory_size', default=10000, type=int, help='size of the replay memory')
+  parser.add_argument('--memory_size', default=1000, type=int, help='size of the replay memory')
   parser.add_argument('--target_update_frequency', default=1, type=int, help='frequency of updating target network')
-  parser.add_argument('--learning_rate', default=0.0005, type=float, help='learning rate')
+  parser.add_argument('--learning_rate', default=0.005, type=float, help='learning rate')
   parser.add_argument('--test_state_number', default=10000, type=int, help='number of states to test')
   parser.add_argument('--goal', default=195, type=int, help='goal score to be achieve')
 

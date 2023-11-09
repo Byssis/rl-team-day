@@ -38,10 +38,10 @@ class DQNAgent:
     # Neural Net for Deep-Q learning Model
     # Input is state, output is Q-value of each action
     # Should match the model complexity of the problem
+    # TODO: Implement the model
     model = Sequential([
-      Dense(16, input_dim=self.state_size, activation='relu', kernel_initializer='he_uniform'),
-      Dense(16, activation='relu', kernel_initializer='he_uniform'),
-      Dense(self.action_size, activation='linear', kernel_initializer='he_uniform')
+      Dense(1, input_dim=self.state_size, activation='relu', kernel_initializer='he_uniform'), # Input layer
+      Dense(self.action_size, activation='linear', kernel_initializer='he_uniform') # Output layer
     ])
     model.compile(loss='mse', optimizer=Adam(learning_rate=self.learning_rate))
     return model
@@ -57,24 +57,23 @@ class DQNAgent:
     self.update_target_model()
 
   def get_action(self, state):
-    state = np.reshape(state, [1, self.state_size])
-    if np.random.random() > self.epsilon:
-      action = np.argmax(self.policy.predict(state, verbose=0))
-    else: 
-      action = np.random.randint(self.action_size)
-    return action
+    # TODO: Implement the exploration policy
+    return np.argmax(self.policy.predict(state, verbose=0))
+  
+  def get_acction_test(self, state):
+    return np.argmax(self.policy.predict(state, verbose=0))
 
-  #Save sample <s,a,r,s'> to the replay memory
+  # Save sample <s,a,r,s'> to the replay memory
   def append_sample(self, state, action, reward, next_state, done):
     state = np.reshape(state, [1, self.state_size]) 
     next_state = np.reshape(next_state, [1, self.state_size])
     self.memory.append((state, action, reward, next_state, done)) #Add sample to the end of the list
 
-  #Sample <s,a,r,s'> from replay memory
   def optimize(self):
     if len(self.memory) < self.train_start: #Do not train if not enough memory
       return
     batch_size = min(self.batch_size, len(self.memory))
+    # Sample <s,a,r,s'> from replay memory
     mini_batch = random.sample(self.memory, batch_size)
 
     update_input = np.zeros((batch_size, self.state_size)) 
@@ -82,14 +81,14 @@ class DQNAgent:
     action, reward, done = [], [], [] 
 
     for i in range(self.batch_size):
-      update_input[i] = mini_batch[i][0] #Allocate s(i) to the network input array from iteration i in the batch
-      action.append(mini_batch[i][1]) #Store a(i)
-      reward.append(mini_batch[i][2]) #Store r(i)
-      update_target[i] = mini_batch[i][3] #Allocate s'(i) for the target network array from iteration i in the batch
+      update_input[i] = mini_batch[i][0] # Allocate s(i) to the network input array from iteration i in the batch
+      action.append(mini_batch[i][1]) # Store a(i)
+      reward.append(mini_batch[i][2]) # Store r(i)
+      update_target[i] = mini_batch[i][3] # Allocate s'(i) for the target network array from iteration i in the batch
       done.append(mini_batch[i][4])  #Store done(i)
 
-    target = self.policy.predict(update_input, verbose=0) #Generate target values for training the inner loop network using the network model
-    target_val = self.target_model.predict(update_target, verbose=0) #Generate the target values for training the outer loop target network
+    target = self.policy.predict(update_input, verbose=0) # Generate target values for training the inner loop network using the network model
+    target_val = self.target_model.predict(update_target, verbose=0) # Generate the target values for training the outer loop target network
 
     for i in range(self.batch_size): #For every batch
       if done[i]:
@@ -97,6 +96,6 @@ class DQNAgent:
       else:
         target[i][action[i]] = reward[i] + self.discount_factor * np.max(target_val[i])
 
-    #Train the inner loop network
+    # Train the inner loop network
     self.policy.fit(update_input, target, batch_size=self.batch_size, epochs=1, verbose=0)
        
